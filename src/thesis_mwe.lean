@@ -1665,35 +1665,44 @@ end
 
 lemma U24_nonbinary : ¬ matroid_in.is_binary (unif 2 4) :=
 begin
+  /- Assume for contradiction that `(unif 2 4)` is representable over `zmod 2` -/
   by_contra hrep,
-  rw [matroid_in.is_binary, is_representable] at hrep,
+  /- Obtain the representation `φ'` and a `base B` of `(unif 2 4)` -/
   obtain ⟨B, ⟨hB, ⟨φ'⟩⟩⟩ := hrep,
+  /- The span of the image of `φ'` on the ground set of `unif 2 4` is a submodule of 
+    `B →₀ zmod 2` -/
   have hsubmodule := @span_mono (zmod 2) _ _ _ _ _ _ (subset_univ (φ' '' (unif 2 4).E)),
   rw ← span_span at hsubmodule,
-  -- need basis
+  /- The rank of `B →₀ zmod 2` is 2 -/
   have hrank : (finrank (zmod 2) (B →₀ zmod 2)) = 2,
-    simp only [finrank_finsupp, fintype.card_of_finset, finset.filter_congr_decidable],
     rw unif_base_iff at hB,
-    rw filter_mem_univ_eq_to_finset,
-    simp_rw ← hB, 
-    rw [ncard_def, nat.card_eq_fintype_card, to_finset_card],
+    simp only [finrank_finsupp, fintype.card_of_finset, finset.filter_congr_decidable,
+      filter_mem_univ_eq_to_finset, ← hB, ncard_def, nat.card_eq_fintype_card],
     simp only [bit0_le_bit0, nat.one_le_bit0_iff, nat.lt_one_iff],
+  /- `fin 2` is a basis for `B →₀ zmod 2` -/
   have hbasis := finite_dimensional.fin_basis (zmod 2) (B →₀ zmod 2),
   rw hrank at hbasis,
   haveI : fintype (B →₀ zmod 2),
     apply finsupp.fintype,
+  /- `B →₀ zmod 2` has cardinality 4 -/
   have hcard := @module.card_fintype _ (zmod 2) (B →₀ zmod 2) _ _ _ _ hbasis _ _,
   simp only [zmod.card, fintype.card_fin] at hcard,
+  /- Because `unif 2 4` is simple, `φ'` must map its elements to nonzero elements of 
+    `B →₀ zmod 2`. So the cardinality of the image of `φ'` on the ground set of 
+    `unif 2 4` must be at most the cardinality of `B →₀ zmod 2` minus the zero vector, 
+    which is 3 -/
   have hcardimagele3 := fintype.card_le_of_embedding (embedding_of_subset _ _ 
     (subset_trans (φ'.subset_nonzero_of_simple (unif_simple 2 4 rfl.le)) 
     (@diff_subset_diff_left _ _ _ ({0} : set (B →₀ zmod 2)) (span_le.1 hsubmodule)))),
   simp_rw [← to_finset_card, to_finset_diff] at hcardimagele3,
   rw [finset.card_sdiff, span_univ, top_coe, to_finset_univ, finset.card_univ, hcard,
     to_finset_card, to_finset_singleton, finset.card_singleton] at hcardimagele3,
+  /- The cardinality of the image of `φ'` of the ground set of `unif 2 4` is 4 -/
   have hcard4 : fintype.card (φ' '' (unif 2 4).E) = fintype.card (fin 4),
   { rw card_image_of_inj_on (φ'.inj_on_ground_of_simple (unif_simple 2 4 rfl.le)),
     simp only [unif_ground_eq, ← to_finset_card, to_finset_univ, finset.card_univ] },
   rw [hcard4, fintype.card_fin, pow_two, two_mul, nat.succ_add_sub_one] at hcardimagele3,
+  /- `linarith` produces a contradiction from `4 ≤ 3` -/
   linarith,
   simp only [span_univ, top_coe, to_finset_univ, to_finset_subset, 
     finset.coe_univ, singleton_subset_iff], 
@@ -1705,7 +1714,6 @@ variables [fintype α]
 
 open_locale big_operators
 
--- should be an instance but i can't figure it out rn
 lemma nontrivial_excluded_minor (M : matroid_in α) [finite_rk M]
   (hM : excluded_minor matroid_in.is_binary M) : nontrivial M.E := 
 begin
