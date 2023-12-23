@@ -1,3 +1,6 @@
+/-
+Code copied from https://github.com/apnelson1/lean-matroids
+-/
 import data.set.image
 import data.set.ncard
 import data.set.function

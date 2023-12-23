@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2023 Alena Gusakov. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Alena Gusakov
+-/
 import analysis.inner_product_space.gram_schmidt_ortho
 import data.zmod.basic data.finsupp.fintype
 import linear_algebra.linear_independent

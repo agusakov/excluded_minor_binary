@@ -1,3 +1,6 @@
+/-
+Code copied from https://github.com/apnelson1/lean-matroids
+-/
 import .prelim_mwe
 import tactic
 

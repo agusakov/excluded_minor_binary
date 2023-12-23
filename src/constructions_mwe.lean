@@ -1,3 +1,6 @@
+/-
+Code copied from https://github.com/apnelson1/lean-matroids
+-/
 import .matroid_mwe
 
 variables {α : Type*} {M : matroid_in α} {k a b c : ℕ} {I J X C B E : set α}
