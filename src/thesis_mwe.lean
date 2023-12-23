@@ -55,12 +55,10 @@ section matroid_lemmas
 lemma contract_circuit_of_insert_circuit (e : α) (C : set α) (he : M.nonloop e) (heC : e ∉ C)
   (hMCe : M.circuit (insert e C)) : (M ⟋ e).circuit C :=
 begin
-  simp_rw [circuit_iff_forall_ssubset, contract_elem] at *,
-  refine ⟨_, λ I hI, _⟩,
-  rw [he.indep.contract_dep_iff, union_singleton],
-  refine ⟨disjoint_singleton_right.2 heC, hMCe.1⟩,
-  rw he.indep.contract_indep_iff,
-  refine ⟨disjoint_singleton_right.2 (not_mem_subset (subset_of_ssubset hI) heC), _⟩,
+  simp_rw [circuit_iff_forall_ssubset, contract_elem, he.indep.contract_dep_iff, union_singleton, 
+    he.indep.contract_indep_iff] at *,
+  refine ⟨⟨disjoint_singleton_right.2 heC, hMCe.1⟩, λ I hI, 
+    ⟨disjoint_singleton_right.2 (not_mem_subset (subset_of_ssubset hI) heC), _⟩⟩,
   have h8 : insert e I ⊂ insert e C,
     obtain ⟨a, ⟨haI, haIC⟩⟩ := ssubset_iff_insert.1 hI,
     have ha : ¬(a = e ∨ a ∈ I),
@@ -183,7 +181,8 @@ begin
 end
 
 /-- If `f` is an injective linear map, then the family `f ∘ v` is linearly independent
-if and only if the family `v` is linearly independent. -/
+if and only if the family `v` is linearly independent and the kernel of `f` is disjoint from
+the span of `v`. -/
 protected lemma linear_map.linear_independent_iff {ι : Type*} {v : ι → W} (f : W →ₗ[𝔽] W') :
   linear_independent 𝔽 (f ∘ v) ↔ linear_independent 𝔽 v ∧ disjoint (f.ker) (span 𝔽 (range v)) :=
 ⟨λ h, ⟨@linear_independent.of_comp _ _ _ W' _ _ _ 
@@ -717,7 +716,7 @@ begin
     intros x hx,
     rw mem_to_finset at hx,
     have h12 := standard_rep_base_eq φM φM' hB hB' ⟨x, (mem_of_mem_inter_right hx)⟩,
-    simp at h12,
+    simp only [subtype.coe_mk] at h12,
     rw h12,
   simp_rw h6,
 end 
@@ -742,7 +741,6 @@ begin
   have hMIxyJ2 := hMIxyJ,
   rw [← union_singleton, ← delete_delete, hMy, 
     delete_delete, union_singleton] at hMIxyJ2,
-  -- i need something that tells me the rank of a matroid when you contract an independent set
   have hNIC : (MI ⟋ (J \ {x, y})).rk = (MC ⟋ (J \ {x, y})).rk,
     { -- this is due to M and M' having the same rank
       have h2 := MI.er_contract_add_er_eq_er_union (J \ {x, y}) (MI.E \ (J \ {x, y})),
@@ -754,8 +752,7 @@ begin
       rw [rk_def, rk_def, ← er_eq_coe_iff, eq_comm] at hrk,
       simp only [contract_ground, coe_r_eq_er] at hrk,
       rw [hrk, ← h2, h4] at h3,
-      simp only [← coe_r_eq_er] at h3,
-      simp only [← enat.coe_add] at h3,
+      simp only [← coe_r_eq_er, ← enat.coe_add] at h3,
       have h7 : ((MC ⟋ (J \ {x, y})).r (MC.E \ (J \ {x, y})) + MC.r (J \ {x, y})) = 
         ((MI ⟋ (J \ {x, y})).r (MI.E \ (J \ {x, y})) + MC.r (J \ {x, y})),
       { rwa [enat.coe_inj] at h3 },
