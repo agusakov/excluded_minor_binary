@@ -1598,6 +1598,8 @@ end rep_constructions
 
 section unif_rep
 
+/-- For `k : ℕ` such that `1 ≤ k`, `unif 1 k` is representable over all 
+  `nontrivial ��`. -/
 lemma U1k_representable (k : ℕ) (hk : 1 ≤ k) [nontrivial 𝔽] : (unif 1 k).is_representable 𝔽 :=
 begin
   have φ := @rep.mk _ 𝔽 _ _ _ _ (unif 1 k) (λ x, (1 : 𝔽)) (λ I hI, _) 
@@ -1621,6 +1623,7 @@ begin
       simp only [ne.def, one_ne_zero, not_false_iff] } },
 end
 
+/-- `unif 2 3` is representable over `zmod 2`. -/
 lemma U23_binary : matroid.is_binary (unif 2 3) :=
 begin
   have hcard3 : fintype.card ((set.univ \ {0}) : set (fin 2 → zmod 2)) = 3, 
@@ -1714,6 +1717,20 @@ begin
   linarith,
   simp only [span_univ, top_coe, to_finset_univ, to_finset_subset, 
     finset.coe_univ, singleton_subset_iff], 
+end
+
+/-- `unif 2 4` is an excluded minor for binary representation -/
+lemma U24_excluded_minor : excluded_minor (set_of matroid.is_binary) (unif 2 4) :=
+begin
+  apply (excluded_minor_iff (set_of matroid.is_binary) (@minor_closed_rep _ (zmod 2) _)).2 
+    ⟨U24_nonbinary, λ e he, ⟨_, _⟩⟩,
+  { obtain ⟨B, ⟨hB, ⟨φc⟩⟩⟩ := @U1k_representable (zmod 2) _ 3 _ _,
+    obtain ⟨ψc⟩ := (contract_elem_unif 1 3 e),
+    apply is_representable_of_rep (rep_of_iso _ _ ψc φc),
+    simp only [one_le_bit1, zero_le'] },
+  { obtain ⟨B, ⟨hB, ⟨φc⟩⟩⟩ := @U23_binary,
+    obtain ⟨ψc⟩ := (delete_elem_unif 2 3 e),
+    apply is_representable_of_rep (rep_of_iso _ _ ψc φc) },
 end
 
 end unif_rep
@@ -2126,20 +2143,6 @@ end
 lemma excluded_minor_binary_iso_unif24 (M : matroid α) [finite_rk M]
   (hM : excluded_minor (set_of matroid.is_binary) M) : nonempty (M ≃i (unif 2 4)) := 
 by { rw excluded_minor_binary_ncard4 hM, apply excluded_minor_binary_iso_unif M hM }  
-
-/-- `unif 2 4` is an excluded minor for binary representation -/
-lemma U24_excluded_minor : excluded_minor (set_of matroid.is_binary) (unif 2 4) :=
-begin
-  apply (excluded_minor_iff (set_of matroid.is_binary) (@minor_closed_rep _ (zmod 2) _)).2 
-    ⟨U24_nonbinary, λ e he, ⟨_, _⟩⟩,
-  { obtain ⟨B, ⟨hB, ⟨φc⟩⟩⟩ := @U1k_representable (zmod 2) _ 3 _ _,
-    obtain ⟨ψc⟩ := (contract_elem_unif 1 3 e),
-    apply is_representable_of_rep (rep_of_iso _ _ ψc φc),
-    simp only [one_le_bit1, zero_le'] },
-  { obtain ⟨B, ⟨hB, ⟨φc⟩⟩⟩ := @U23_binary,
-    obtain ⟨ψc⟩ := (delete_elem_unif 2 3 e),
-    apply is_representable_of_rep (rep_of_iso _ _ ψc φc) },
-end
 
 /-- If `M` is an excluded minor for binary representation, then `M` is isomorphic to `unif 2 4` -/
 lemma excluded_minor_binary_iff_iso_unif24 (M : matroid α) [finite_rk M] :
